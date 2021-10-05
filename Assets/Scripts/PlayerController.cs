@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    // Game Manager
+    public GameObject gameManager;
+    private GameManager _gameManagerScript;
+
     // Character rigi and animator
     private Rigidbody playerRb;
     private Animator playerAnim;
@@ -19,9 +23,6 @@ public class PlayerController : MonoBehaviour
     public AudioClip crashSound;
     public AudioClip rewardSound;
 
-    // Game Menu
-    private GameMenu gameMenuScript;
-
     // Object moving script
     private MoveToTheLeft moveToTheLeftScript;
     private float moveSpeed;
@@ -30,11 +31,8 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 10f;
     public float gravityModifier = 1;
     public bool isOnGround = true;
-    public bool isGameOver = false;
     public bool hasDoubleJump = true;
     public bool dashMode = false;
-    public bool onGameEntry = true;
-    public bool onFuriousMode;
     public int pizzaCollected;
 
     // Score tracking
@@ -42,28 +40,24 @@ public class PlayerController : MonoBehaviour
     private float scoreUpdateInterval = 1f;
 
     // Properties for switching land
-    private float switchStep = 15f;
-    private int playerZPosIndex = 0;
-    private float[] playerZPositions = new float[] { 4.8f, 0f, -4.8f };
+    private float _playerZPos = 4.8f;
+    //private float[] playerZPositions = new float[] { 4.8f, 0f, -4.8f };
 
     // Start is called before the first frame update
     void Start()
     {
-        // Initialize furious mode
-        onFuriousMode = false;
-
         // Initialize pizza collected
         pizzaCollected = 0;
 
-        // Get game menu script
-        gameMenuScript = GameObject.Find("Menu").GetComponent<GameMenu>();
+        // Get game manager
+        _gameManagerScript = gameManager.GetComponent<GameManager>();
 
         // Get move to the left script to get current moving speed
         moveToTheLeftScript = GameObject.Find("Ground").GetComponent<MoveToTheLeft>();
         moveSpeed = moveToTheLeftScript.moveSpeed;
 
         // Initial position behind scene to show game entry
-        transform.position = new Vector3(-9f, transform.position.y, playerZPositions[playerZPosIndex]);
+        transform.position = new Vector3(-9f, transform.position.y, _playerZPos);
 
         // Get player animator and rigidbody
         playerAnim = GetComponent<Animator>();
@@ -92,72 +86,33 @@ public class PlayerController : MonoBehaviour
     {
         // Bug
         //Debug.Log(gameMenuScript.gameStart);
-        if (gameMenuScript.gameStart)
+        if (_gameManagerScript.IsGameStart)
         {
-            if (!isGameOver && !onGameEntry)
+            if (!_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
             {
                 // Jump trigger and animation
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    if (isOnGround)
-                    {
-                        JumpAction();
-                    }
-                    else if (hasDoubleJump)
-                    {
-                        JumpAction(isDoubleJump: true);
-                        hasDoubleJump = false;
-                    }
+                    JumpAction();
                 }
 
-                // Move to left land
-                //if (Input.GetKeyDown(KeyCode.LeftArrow))
-                //{
-                //    SwitchLand(-1);
-                //    Debug.Log("Left arrow");
-                //}
-
-                // Move to right land
-                //if (Input.GetKeyDown(KeyCode.RightArrow))
-                //{
-                //    SwitchLand(1);
-                //    Debug.Log("Right arrow");
-
-                //}
-
-                // Dash Mode
+                // Dash Mode On
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    dashMode = true;
-                    DashMode(speed: 2.0f);
+                    DashMode(dashMode: true);
                 }
+
+                // Dash Mode Off
                 if (Input.GetKeyUp(KeyCode.LeftShift))
                 {
-                    dashMode = false;
-                    DashMode(speed: 1.0f);
-                }
-
-                // Switch lands
-                if (transform.position.z != playerZPositions[playerZPosIndex])
-                {
-                    Vector3 newPosition = new Vector3(transform.position.x, transform.position.y, playerZPositions[playerZPosIndex]);
-
-                    transform.position = Vector3.MoveTowards(transform.position, newPosition, Time.deltaTime * switchStep);
+                    DashMode(dashMode: false);
                 }
             }
 
             // Game entry animation
-            if (onGameEntry)
+            if (_gameManagerScript.IsGameEntry)
             {
-                // Move player to position
-                Vector3 newPosition = new Vector3(0, 0, playerZPositions[playerZPosIndex]);
-
-                transform.position = Vector3.MoveTowards(transform.position, newPosition, Time.deltaTime * 8f);
-
-                if (transform.position == newPosition)
-                {
-                    onGameEntry = false;
-                }
+                GameEntry();
             }
 
             // Check if the speed has changed
@@ -177,19 +132,26 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private void DisableFuriousMode()
+    // Perform game entry animation
+    private void GameEntry()
     {
-        onFuriousMode = false;
+        // Move player to position
+        Vector3 newPosition = new Vector3(0, 0, _playerZPos);
+
+        transform.position = Vector3.MoveTowards(transform.position, newPosition, Time.deltaTime * 8f);
+
+        if (transform.position == newPosition)
+        {
+            _gameManagerScript.GameEntryComplete();
+        }
     }
 
+    // Update score every seconds
     private void UpdateScore()
     {
-        if (!isGameOver)
+        if (!_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
         {
-            if (!onGameEntry)
-            {
-                score += 1;
-            }
+            score += 1;
 
             if (dashMode)
             {
@@ -203,24 +165,41 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void DashMode(float speed)
+    // Dash mode
+    private void DashMode(bool dashMode)
     {
+        // Set dash mode
+        this.dashMode = dashMode;
+        // Change speed if on dash mode
+        float speed;
+        if (dashMode)
+        {
+            speed = 2.0f;
+        } else
+        {
+            speed = 1.0f;
+        }
         // Set twice fast the animation
         playerAnim.SetFloat("Running_Animation_Speed_Multiplier", speed);
     }
 
-    private void JumpAction(bool isDoubleJump = false)
+    // Jump action
+    private void JumpAction()
     {
-        if (isDoubleJump)
+        if (!isOnGround && hasDoubleJump)
         {
             // Set velocity to zero before add another force to prevent acceleration futher from
             // previous velocity
             playerRb.velocity = Vector3.zero;
             playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            hasDoubleJump = false;
         }
-        else
+        else if (isOnGround)
         {
             playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        } else
+        {
+            return;
         }
 
         // Set back on ground
@@ -234,22 +213,10 @@ public class PlayerController : MonoBehaviour
         playerAudio.PlayOneShot(jumpSound, 0.2f);
     }
 
-    // Switch land
-    private void SwitchLand(int zPosIndex)
-    {
-        // Get new position index
-        int newZPosIndex = playerZPosIndex + zPosIndex;
-
-        // Check if index is within the range
-        if (newZPosIndex >= 0 && newZPosIndex < playerZPositions.Length)
-        {
-            playerZPosIndex = newZPosIndex;
-        }
-    }
-
+    // Detect collision
     private void OnCollisionEnter(Collision collision)
     {
-        if (!isGameOver)
+        if (!_gameManagerScript.IsGameOver)
         {
             if (collision.gameObject.CompareTag("Ground"))
             {
@@ -262,7 +229,9 @@ public class PlayerController : MonoBehaviour
             {
                 // Stop collision and functionalities when game over
                 Debug.Log("Game Over!");
-                isGameOver = true;
+                _gameManagerScript.GameOver();
+
+                // Set animation
                 playerAnim.SetBool("Death_b", true);
                 playerAnim.SetInteger("DeathType_int", 1);
                 explosionParticle.Play();
@@ -272,19 +241,15 @@ public class PlayerController : MonoBehaviour
                 playerAudio.PlayOneShot(crashSound, 1.0f);
 
             }
-            else if (collision.gameObject.CompareTag("FuriousObject"))
-            {
-
-                float collideForce = moveSpeed * 40f;
-                collision.gameObject.GetComponent<Rigidbody>().AddForce(Vector3.right * collideForce, ForceMode.Impulse);
-            }
         }
     }
 
+    // Detech rewards
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Reward"))
         {
+            // Add reward to score
             score += 5;
             sparkParticle.Play();
             playerAudio.PlayOneShot(rewardSound, 1.0f);

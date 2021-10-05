@@ -1,59 +1,63 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MoveToTheLeft : MonoBehaviour
 {
+    // Game manager script
+    private GameManager _gameManagerScript;
+    // Player script
+    private PlayerController _playerControllerScript;
+
+    // Move speed and boundry
     public float moveSpeed = 20.0f;
-    private float leftBoundry = -15f;
-    private float zBoundry = 20.0f;
-    private PlayerController playerControllerScript;
+    private float _leftBoundry = -15f;
+    private string[] _ofBoundaryTags = { "Obstacle", "Scene" };
 
     // Start is called before the first frame update
     void Start()
     {
-        playerControllerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+        // Initialize game manager script
+        _gameManagerScript = GameObject.Find("GameManager").GetComponent<GameManager>();
 
-        if (playerControllerScript.dashMode)
-        {
-            moveSpeed *= 2;
-        }
+        // Initialize player script
+        _playerControllerScript = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!playerControllerScript.isGameOver && !playerControllerScript.onGameEntry)
+        if (_gameManagerScript.IsGameStart && !_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
+        {
+            OnMove();
+            DestoryOutOfBoundary();
+        }
+    }
+
+    // Moving object
+    private void OnMove()
+    {
+        if (_playerControllerScript.dashMode)
+        {
+            transform.Translate(Vector3.left * Time.deltaTime * moveSpeed * 2);
+        }
+        else
         {
             transform.Translate(Vector3.left * Time.deltaTime * moveSpeed);
         }
+    }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+    // Destory object when it went off the boundary
+    private void DestoryOutOfBoundary()
+    {
+        if (Array.IndexOf(_ofBoundaryTags, gameObject.tag) > -1)
         {
-            moveSpeed *= 2;
-        }
-
-        if (Input.GetKeyUp(KeyCode.LeftShift))
-        {
-            moveSpeed /= 2;
-        }
-
-        
-        if (gameObject.CompareTag("Obstacle") || gameObject.CompareTag("Scene"))
-        {
-            if (playerControllerScript.onFuriousMode)
-            {
-                Invoke("DelayDestroy", 10f);
-            } else if (transform.position.x <= leftBoundry || transform.position.z <= -zBoundry || transform.position.z >= zBoundry)
+            if (transform.position.x <= _leftBoundry)
             {
                 // Destroy obstacle and background scene
                 Destroy(gameObject);
             }
         }
-    }
-
-    private void DelayDestroy()
-    {
-        Destroy(gameObject);
     }
 }
