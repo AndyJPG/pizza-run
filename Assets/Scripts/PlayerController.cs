@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
     public AudioClip rewardSound;
 
     // Character values
-    private float _jumpForce = 20f;
+    private float _jumpForce = 540f;
     private float _gravityModifier = 1;
     private bool _isOnGround = true;
     private bool _hasDoubleJump = true;
@@ -35,8 +35,7 @@ public class PlayerController : MonoBehaviour
     private float _scoreUpdateInterval = 1f;
 
     // Properties for switching land
-    private float _playerZPos = 0f;
-    //private float[] playerZPositions = new float[] { 4.8f, 0f, -4.8f };
+    private float _playerZPos = 4.8f; // { 4.8f, 0f, -4.8f };
 
     // Start is called before the first frame update
     void Start()
@@ -60,6 +59,7 @@ public class PlayerController : MonoBehaviour
 
         Physics.gravity = new Vector3(0, -9.81f, 0);
         Physics.gravity *= _gravityModifier;
+        Debug.Log(Physics.gravity);
 
         // Make dirt particle start by delay half second
         var main = dirtParticle.main;
@@ -123,7 +123,6 @@ public class PlayerController : MonoBehaviour
     // Update score every seconds
     private void UpdateScore()
     {
-        Debug.Log("Current score: " + score);
         if (_gameManagerScript.IsGameStart && !_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
         {
             score += 1;
@@ -166,7 +165,6 @@ public class PlayerController : MonoBehaviour
     {
         if (!_isOnGround && _hasDoubleJump)
         {
-            Debug.Log("Perform double jump");
             // Set velocity to zero before add another force to prevent acceleration futher from
             // previous velocity
             _playerRb.velocity = Vector3.zero;
@@ -175,8 +173,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (_isOnGround)
         {
-            Debug.Log("Perform jump");
-            _playerRb.AddForce(Vector3.up * 200f, ForceMode.Impulse);
+            _playerRb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
         } 
         else
         {
@@ -201,7 +198,6 @@ public class PlayerController : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Ground"))
             {
-                Debug.Log("Ground");
                 // Reset jump when at ground
                 _isOnGround = true;
                 _hasDoubleJump = true;
@@ -210,7 +206,6 @@ public class PlayerController : MonoBehaviour
             else if (collision.gameObject.CompareTag("Obstacle"))
             {
                 // Stop collision and functionalities when game over
-                Debug.Log("Game Over!");
                 _gameManagerScript.GameOver();
 
                 // Set animation

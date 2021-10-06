@@ -848,6 +848,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd5aa827c204d364c8d1e2f3cc031db9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 1411997120}
 --- !u!114 &645662454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1049,7 +1050,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e510ffe18ad66f04cbe8105f9c8c3b28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
 --- !u!114 &835818923
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1456,6 +1456,18 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -1473,7 +1485,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
       propertyPath: m_LocalRotation.y
@@ -1481,7 +1493,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1513,8 +1525,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 3.2, z: 1.2}
-  m_Center: {x: 0, y: 1.55, z: 0}
+  m_Size: {x: 0.9263917, y: 3.061985, z: 0.592732}
+  m_Center: {x: 0.00000029802322, y: 1.5177963, z: -0.00920102}
 --- !u!54 &1411997122
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1550,12 +1562,7 @@ MonoBehaviour:
   jumpSound: {fileID: 8300000, guid: 0f7d0b7c3397f4dac91f20e8a77d2d57, type: 3}
   crashSound: {fileID: 8300000, guid: 913d6445ee8cc4152a9c18da590ee203, type: 3}
   rewardSound: {fileID: 8300000, guid: ccb9b31174a3a43709a113a9c7cf4252, type: 3}
-  jumpForce: 650
-  gravityModifier: 1.5
-  isOnGround: 1
-  hasDoubleJump: 1
   dashMode: 0
-  pizzaCollected: 0
   score: 0
 --- !u!4 &1411997125 stripped
 Transform:
@@ -1701,7 +1708,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e510ffe18ad66f04cbe8105f9c8c3b28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 20
 --- !u!4 &1423261417
 Transform:
   m_ObjectHideFlags: 0
