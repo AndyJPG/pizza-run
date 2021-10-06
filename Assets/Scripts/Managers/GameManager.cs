@@ -13,6 +13,12 @@ public class GameManager : MonoBehaviour
     public GameObject sceneManager;
     private ScenesManager _sceneManagerScript;
 
+    // Score
+    private int _score;
+
+    // Dash mode
+    private bool _dashMode;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +26,7 @@ public class GameManager : MonoBehaviour
         _isGameStart = false;
         _isGameOver = false;
         _isGameEntry = false;
+        _score = 0;
 
         // Initialize scene manager
         _sceneManagerScript = sceneManager.GetComponent<ScenesManager>();
@@ -43,11 +50,24 @@ public class GameManager : MonoBehaviour
         get { return _isGameEntry; }
     }
 
+    // Get score
+    public int Score
+    {
+        get { return _score; }
+    }
+
+    // Is play on dash mode
+    public bool DashMode
+    {
+        get { return _dashMode; }
+    }
+
     // Start game
     public void GameStart()
     {
         _isGameStart = true;
         _isGameEntry = true;
+        UpdateScore();
     }
 
     // Game entry completed
@@ -68,5 +88,39 @@ public class GameManager : MonoBehaviour
     {
         // Restart current active scene
         _sceneManagerScript.RestartCurrentScene();
+    }
+
+    // Enter dash mode
+    public void EnterDashMode()
+    {
+        Debug.Log("Enter dash mode");
+        _dashMode = true;
+    }
+
+    // Exit dash mode
+    public void ExitDashMode()
+    {
+        Debug.Log("Exit dash mode");
+        _dashMode = false;
+    }
+
+    // Update score every seconds
+    private void UpdateScore()
+    {
+        Debug.Log("GAME MANAGER SCORE: " + _score);
+        if (!_isGameOver)
+        {
+            _score += 1;
+
+            if (_dashMode)
+            {
+                // If is in dash mode score update faster
+                Invoke("UpdateScore", 0.5f);
+            }
+            else
+            {
+                Invoke("UpdateScore", 1f);
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ public class SpawnManager : MonoBehaviour
     // Spawn positions
     private Vector3 spawnPos = new Vector3(45, 0, 4.8f);
     private Vector3 sceneSpawnPos = new Vector3(45, 0, 10);
+    private Vector3 carSceneSpawnPos = new Vector3(45, 0, 0);
 
     // Start is called before the first frame update
     void Start()
@@ -50,10 +51,6 @@ public class SpawnManager : MonoBehaviour
         {
             Invoke("LevelUpdate", 1.0f);
         }
-        else
-        {
-            Debug.Log("Level update stop");
-        }
     }
 
     // Spawn obstacles
@@ -75,10 +72,6 @@ public class SpawnManager : MonoBehaviour
         else if (!_gameManagerScript.IsGameOver)
         {
             Invoke("SpawnObstacle", 1f);
-        } 
-        else
-        {
-            Debug.Log("Obstacle spawn stop");
         }
     }
 
@@ -95,10 +88,6 @@ public class SpawnManager : MonoBehaviour
         else if (!_gameManagerScript.IsGameOver)
         {
             Invoke("SpawnScene", 1f);
-        } 
-        else
-        {
-            Debug.Log("Scene spawn stop");
         }
     }
 }

@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviour
     private float _scoreUpdateInterval = 1f;
 
     // Properties for switching land
-    private float _playerZPos = 4.8f; // { 4.8f, 0f, -4.8f };
+    private float _playerZPos = 0; // { 4.8f, 0f, -4.8f };
 
     // Start is called before the first frame update
     void Start()
@@ -87,12 +87,14 @@ public class PlayerController : MonoBehaviour
                 // Dash Mode On
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
+                    _gameManagerScript.EnterDashMode();
                     DashMode(dashMode: true);
                 }
 
                 // Dash Mode Off
                 if (Input.GetKeyUp(KeyCode.LeftShift))
                 {
+                    _gameManagerScript.ExitDashMode();
                     DashMode(dashMode: false);
                 }
             }
