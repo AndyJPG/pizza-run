@@ -4,9 +4,17 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    // Game Manager
+    public GameObject gameManager;
+    private GameManager _gameManagerScript;
+
+    // Score Manager
+    public GameObject scoreManager;
+    private ScoreManager _scoreManagerScript;
+
     // Character rigi and animator
-    private Rigidbody playerRb;
-    private Animator playerAnim;
+    private Rigidbody _playerRb;
+    private Animator _playerAnim;
 
     // Particles
     public ParticleSystem explosionParticle;
@@ -14,77 +22,45 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem sparkParticle;
 
     // Audio properties
-    private AudioSource playerAudio;
+    private AudioSource _playerAudio;
     public AudioClip jumpSound;
     public AudioClip crashSound;
     public AudioClip rewardSound;
 
-    // Game Menu
-    private GameMenu gameMenuScript;
-
-    // Object moving script
-    private MoveToTheLeft moveToTheLeftScript;
-    private float moveSpeed;
-
     // Character values
-    public float jumpForce = 10f;
-    public float gravityModifier = 1;
-    public bool isOnGround = true;
-    public bool isGameOver = false;
-    public bool hasDoubleJump = true;
-    public bool dashMode = false;
-    public bool onGameEntry = true;
-    public bool onFuriousMode;
-    public int pizzaCollected;
-
-    // Score tracking
-    public float score = 0;
-    private float scoreUpdateInterval = 1f;
+    private float _jumpForce = 650f;
+    private bool _isOnGround = true;
+    private bool _hasDoubleJump = true;
 
     // Properties for switching land
-    private float switchStep = 15f;
-    private int playerZPosIndex = 0;
-    private float[] playerZPositions = new float[] { 4.8f, 0f, -4.8f };
+    private float _playerZPos = 4.8f; // { 4.8f, 0f, -4.8f };
 
     // Start is called before the first frame update
     void Start()
     {
-        // Initialize furious mode
-        onFuriousMode = false;
+        // Get game manager
+        _gameManagerScript = gameManager.GetComponent<GameManager>();
 
-        // Initialize pizza collected
-        pizzaCollected = 0;
-
-        // Get game menu script
-        gameMenuScript = GameObject.Find("Menu").GetComponent<GameMenu>();
-
-        // Get move to the left script to get current moving speed
-        moveToTheLeftScript = GameObject.Find("Ground").GetComponent<MoveToTheLeft>();
-        moveSpeed = moveToTheLeftScript.moveSpeed;
+        // Get score manager
+        _scoreManagerScript = scoreManager.GetComponent<ScoreManager>();
 
         // Initial position behind scene to show game entry
-        transform.position = new Vector3(-9f, transform.position.y, playerZPositions[playerZPosIndex]);
+        transform.position = new Vector3(-9f, transform.position.y, _playerZPos);
 
         // Get player animator and rigidbody
-        playerAnim = GetComponent<Animator>();
-        playerRb = GetComponent<Rigidbody>();
-        playerAudio = GetComponent<AudioSource>();
+        _playerAnim = GetComponent<Animator>();
+        _playerRb = GetComponent<Rigidbody>();
+        _playerAudio = GetComponent<AudioSource>();
 
         // Set animator speed
-        playerAnim.SetFloat("Speed_f", 1f);
+        _playerAnim.SetFloat("Speed_f", 1f);
 
         // Set jump animation duration with multiplier
-        playerAnim.SetFloat("Running_Jump_Animation_Speed_Multiplier", 0.7f);
-
-        Physics.gravity = new Vector3(0, -9.81f, 0);
-        Physics.gravity *= gravityModifier;
+        _playerAnim.SetFloat("Running_Jump_Animation_Speed_Multiplier", 0.7f);
 
         // Make dirt particle start by delay half second
         var main = dirtParticle.main;
         main.startDelay = 0.5f;
-
-        // Update score
-        Invoke("UpdateScore", scoreUpdateInterval);
     }
 
     // Update is called once per frame
@@ -92,202 +68,123 @@ public class PlayerController : MonoBehaviour
     {
         // Bug
         //Debug.Log(gameMenuScript.gameStart);
-        if (gameMenuScript.gameStart)
+        if (_gameManagerScript.IsGameStart)
         {
-            if (!isGameOver && !onGameEntry)
+            if (!_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
             {
                 // Jump trigger and animation
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    if (isOnGround)
-                    {
-                        JumpAction();
-                    }
-                    else if (hasDoubleJump)
-                    {
-                        JumpAction(isDoubleJump: true);
-                        hasDoubleJump = false;
-                    }
+                    JumpAction();
                 }
 
-                // Move to left land
-                //if (Input.GetKeyDown(KeyCode.LeftArrow))
-                //{
-                //    SwitchLand(-1);
-                //    Debug.Log("Left arrow");
-                //}
-
-                // Move to right land
-                //if (Input.GetKeyDown(KeyCode.RightArrow))
-                //{
-                //    SwitchLand(1);
-                //    Debug.Log("Right arrow");
-
-                //}
-
-                // Dash Mode
+                // Dash Mode On
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    dashMode = true;
-                    DashMode(speed: 2.0f);
+                    _gameManagerScript.EnterDashMode();
+                    _playerAnim.SetFloat("Running_Animation_Speed_Multiplier", 2.0f);
                 }
+
+                // Dash Mode Off
                 if (Input.GetKeyUp(KeyCode.LeftShift))
                 {
-                    dashMode = false;
-                    DashMode(speed: 1.0f);
-                }
-
-                // Switch lands
-                if (transform.position.z != playerZPositions[playerZPosIndex])
-                {
-                    Vector3 newPosition = new Vector3(transform.position.x, transform.position.y, playerZPositions[playerZPosIndex]);
-
-                    transform.position = Vector3.MoveTowards(transform.position, newPosition, Time.deltaTime * switchStep);
+                    _gameManagerScript.ExitDashMode();
+                    _playerAnim.SetFloat("Running_Animation_Speed_Multiplier", 1.0f);
                 }
             }
 
             // Game entry animation
-            if (onGameEntry)
+            if (_gameManagerScript.IsGameEntry)
             {
-                // Move player to position
-                Vector3 newPosition = new Vector3(0, 0, playerZPositions[playerZPosIndex]);
-
-                transform.position = Vector3.MoveTowards(transform.position, newPosition, Time.deltaTime * 8f);
-
-                if (transform.position == newPosition)
-                {
-                    onGameEntry = false;
-                }
+                GameEntryAnimation();
             }
-
-            // Check if the speed has changed
-            if (moveSpeed != moveToTheLeftScript.moveSpeed)
-            {
-                moveSpeed = moveToTheLeftScript.moveSpeed;
-            }
-
-            // Check if player enters furious mode
-            //if (pizzaCollected == 4)
-            //{
-            //    onFuriousMode = true;
-            //    pizzaCollected = 0;
-            //    Invoke("DisableFuriousMode", 20f);
-            //}
         }
 
     }
 
-    private void DisableFuriousMode()
+    // Perform game entry animation
+    private void GameEntryAnimation()
     {
-        onFuriousMode = false;
-    }
+        // Move player to position
+        Vector3 newPosition = new Vector3(0, 0, _playerZPos);
 
-    private void UpdateScore()
-    {
-        if (!isGameOver)
+        transform.position = Vector3.MoveTowards(transform.position, newPosition, Time.deltaTime * 8f);
+
+        if (transform.position == newPosition)
         {
-            if (!onGameEntry)
-            {
-                score += 1;
-            }
-
-            if (dashMode)
-            {
-                // If is in dash mode score update faster
-                Invoke("UpdateScore", scoreUpdateInterval / 2);
-            }
-            else
-            {
-                Invoke("UpdateScore", scoreUpdateInterval);
-            }
+            _gameManagerScript.GameEntryComplete();
         }
     }
 
-    private void DashMode(float speed)
+    // Jump action
+    private void JumpAction()
     {
-        // Set twice fast the animation
-        playerAnim.SetFloat("Running_Animation_Speed_Multiplier", speed);
-    }
-
-    private void JumpAction(bool isDoubleJump = false)
-    {
-        if (isDoubleJump)
+        if (!_isOnGround && _hasDoubleJump)
         {
             // Set velocity to zero before add another force to prevent acceleration futher from
             // previous velocity
-            playerRb.velocity = Vector3.zero;
-            playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            _playerRb.velocity = Vector3.zero;
+            _playerRb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            _hasDoubleJump = false;
         }
+        else if (_isOnGround)
+        {
+            _playerRb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        } 
         else
         {
-            playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            return;
         }
 
         // Set back on ground
-        isOnGround = false;
+        _isOnGround = false;
         // Trigger jump animation
-        playerAnim.SetTrigger("Jump_trig");
+        _playerAnim.SetTrigger("Jump_trig");
         // Stop particle animations
         dirtParticle.Stop();
 
         // Jump sound effect
-        playerAudio.PlayOneShot(jumpSound, 0.2f);
+        _playerAudio.PlayOneShot(jumpSound, 0.2f);
     }
 
-    // Switch land
-    private void SwitchLand(int zPosIndex)
-    {
-        // Get new position index
-        int newZPosIndex = playerZPosIndex + zPosIndex;
-
-        // Check if index is within the range
-        if (newZPosIndex >= 0 && newZPosIndex < playerZPositions.Length)
-        {
-            playerZPosIndex = newZPosIndex;
-        }
-    }
-
+    // Detect collision
     private void OnCollisionEnter(Collision collision)
     {
-        if (!isGameOver)
+        if (!_gameManagerScript.IsGameOver)
         {
             if (collision.gameObject.CompareTag("Ground"))
             {
                 // Reset jump when at ground
-                isOnGround = true;
-                hasDoubleJump = true;
+                _isOnGround = true;
+                _hasDoubleJump = true;
                 dirtParticle.Play();
             }
             else if (collision.gameObject.CompareTag("Obstacle"))
             {
                 // Stop collision and functionalities when game over
-                Debug.Log("Game Over!");
-                isGameOver = true;
-                playerAnim.SetBool("Death_b", true);
-                playerAnim.SetInteger("DeathType_int", 1);
+                _gameManagerScript.GameOver();
+
+                // Set animation
+                _playerAnim.SetBool("Death_b", true);
+                _playerAnim.SetInteger("DeathType_int", 1);
                 explosionParticle.Play();
                 dirtParticle.Stop();
 
                 // Crash sound effect
-                playerAudio.PlayOneShot(crashSound, 1.0f);
-
-            }
-            else if (collision.gameObject.CompareTag("FuriousObject"))
-            {
-
-                float collideForce = moveSpeed * 40f;
-                collision.gameObject.GetComponent<Rigidbody>().AddForce(Vector3.right * collideForce, ForceMode.Impulse);
+                _playerAudio.PlayOneShot(crashSound, 1.0f);
             }
         }
     }
 
+    // Detech rewards
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Reward"))
         {
-            score += 5;
+            // Add reward to score
+            _scoreManagerScript.AddBonusScore(5);
             sparkParticle.Play();
-            playerAudio.PlayOneShot(rewardSound, 1.0f);
+            _playerAudio.PlayOneShot(rewardSound, 1.0f);
             Destroy(other.gameObject);
         }
     }

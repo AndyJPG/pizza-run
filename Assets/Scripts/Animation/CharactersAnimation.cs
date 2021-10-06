@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CharactersAnimation : MonoBehaviour
@@ -15,6 +13,7 @@ public class CharactersAnimation : MonoBehaviour
         StartAnimation();
     }
 
+    // Animations
     private void StartAnimation()
     {
         int animationInt = 0;
@@ -33,7 +32,6 @@ public class CharactersAnimation : MonoBehaviour
 
             case "Walker":
                 float walkerSpeed = Random.Range(0.26f, 0.5f);
-                Debug.Log(walkerSpeed);
                 if (walkerSpeed > 0.4f)
                 {
                     headMoveInt = 3;
