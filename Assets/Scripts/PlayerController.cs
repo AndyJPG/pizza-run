@@ -24,8 +24,8 @@ public class PlayerController : MonoBehaviour
     public AudioClip rewardSound;
 
     // Character values
-    private float _jumpForce = 540f;
-    private float _gravityModifier = 1;
+    private float _jumpForce = 650f;
+    private float _gravityModifier = 1.5f;
     private bool _isOnGround = true;
     private bool _hasDoubleJump = true;
     public bool dashMode = false;
