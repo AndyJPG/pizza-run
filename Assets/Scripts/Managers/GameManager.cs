@@ -19,6 +19,9 @@ public class GameManager : MonoBehaviour
     // Dash mode
     private bool _dashMode;
 
+    // Game physics
+    private float _gravityModifier = 1.5f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +33,9 @@ public class GameManager : MonoBehaviour
 
         // Initialize scene manager
         _sceneManagerScript = sceneManager.GetComponent<ScenesManager>();
+
+        // Set game physics
+        Physics.gravity = new Vector3(0, -9.81f * _gravityModifier, 0);
     }
 
     // Is game start
@@ -93,21 +99,18 @@ public class GameManager : MonoBehaviour
     // Enter dash mode
     public void EnterDashMode()
     {
-        Debug.Log("Enter dash mode");
         _dashMode = true;
     }
 
     // Exit dash mode
     public void ExitDashMode()
     {
-        Debug.Log("Exit dash mode");
         _dashMode = false;
     }
 
     // Update score every seconds
     private void UpdateScore()
     {
-        Debug.Log("GAME MANAGER SCORE: " + _score);
         if (!_isGameOver)
         {
             _score += 1;
@@ -122,5 +125,11 @@ public class GameManager : MonoBehaviour
                 Invoke("UpdateScore", 1f);
             }
         }
+    }
+
+    // Add bonus score
+    public void AddBonusScore(int bonus)
+    {
+        _score += bonus;
     }
 }

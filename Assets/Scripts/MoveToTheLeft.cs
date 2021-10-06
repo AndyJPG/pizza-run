@@ -5,8 +5,6 @@ public class MoveToTheLeft : MonoBehaviour
 {
     // Game manager script
     private GameManager _gameManagerScript;
-    // Player script
-    private PlayerController _playerControllerScript;
 
     // Move speed and boundry
     private float _moveSpeed = 20.0f;
@@ -18,9 +16,6 @@ public class MoveToTheLeft : MonoBehaviour
     {
         // Initialize game manager script
         _gameManagerScript = GameObject.Find("GameManager").GetComponent<GameManager>();
-
-        // Initialize player script
-        _playerControllerScript = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
@@ -36,7 +31,7 @@ public class MoveToTheLeft : MonoBehaviour
     // Moving object
     private void OnMove()
     {
-        if (_playerControllerScript.dashMode)
+        if (_gameManagerScript.DashMode)
         {
             transform.Translate(Vector3.left * Time.deltaTime * _moveSpeed * 2);
         }

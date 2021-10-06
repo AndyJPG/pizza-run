@@ -25,14 +25,8 @@ public class PlayerController : MonoBehaviour
 
     // Character values
     private float _jumpForce = 650f;
-    private float _gravityModifier = 1.5f;
     private bool _isOnGround = true;
     private bool _hasDoubleJump = true;
-    public bool dashMode = false;
-
-    // Score tracking
-    public float score = 0;
-    private float _scoreUpdateInterval = 1f;
 
     // Properties for switching land
     private float _playerZPos = 0; // { 4.8f, 0f, -4.8f };
@@ -57,16 +51,9 @@ public class PlayerController : MonoBehaviour
         // Set jump animation duration with multiplier
         _playerAnim.SetFloat("Running_Jump_Animation_Speed_Multiplier", 0.7f);
 
-        Physics.gravity = new Vector3(0, -9.81f, 0);
-        Physics.gravity *= _gravityModifier;
-        Debug.Log(Physics.gravity);
-
         // Make dirt particle start by delay half second
         var main = dirtParticle.main;
         main.startDelay = 0.5f;
-
-        // Update score
-        Invoke("UpdateScore", _scoreUpdateInterval);
     }
 
     // Update is called once per frame
@@ -88,28 +75,28 @@ public class PlayerController : MonoBehaviour
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
                     _gameManagerScript.EnterDashMode();
-                    DashMode(dashMode: true);
+                    _playerAnim.SetFloat("Running_Animation_Speed_Multiplier", 2.0f);
                 }
 
                 // Dash Mode Off
                 if (Input.GetKeyUp(KeyCode.LeftShift))
                 {
                     _gameManagerScript.ExitDashMode();
-                    DashMode(dashMode: false);
+                    _playerAnim.SetFloat("Running_Animation_Speed_Multiplier", 1.0f);
                 }
             }
 
             // Game entry animation
             if (_gameManagerScript.IsGameEntry)
             {
-                GameEntry();
+                GameEntryAnimation();
             }
         }
 
     }
 
     // Perform game entry animation
-    private void GameEntry()
+    private void GameEntryAnimation()
     {
         // Move player to position
         Vector3 newPosition = new Vector3(0, 0, _playerZPos);
@@ -120,46 +107,6 @@ public class PlayerController : MonoBehaviour
         {
             _gameManagerScript.GameEntryComplete();
         }
-    }
-
-    // Update score every seconds
-    private void UpdateScore()
-    {
-        if (_gameManagerScript.IsGameStart && !_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
-        {
-            score += 1;
-
-            if (dashMode)
-            {
-                // If is in dash mode score update faster
-                Invoke("UpdateScore", _scoreUpdateInterval / 2);
-            }
-            else
-            {
-                Invoke("UpdateScore", _scoreUpdateInterval);
-            }
-        } else
-        {
-            Invoke("UpdateScore", _scoreUpdateInterval);
-        }
-    }
-
-    // Dash mode
-    private void DashMode(bool dashMode)
-    {
-        // Set dash mode
-        this.dashMode = dashMode;
-        // Change speed if on dash mode
-        float speed;
-        if (dashMode)
-        {
-            speed = 2.0f;
-        } else
-        {
-            speed = 1.0f;
-        }
-        // Set twice fast the animation
-        _playerAnim.SetFloat("Running_Animation_Speed_Multiplier", speed);
     }
 
     // Jump action
@@ -218,7 +165,6 @@ public class PlayerController : MonoBehaviour
 
                 // Crash sound effect
                 _playerAudio.PlayOneShot(crashSound, 1.0f);
-
             }
         }
     }
@@ -229,7 +175,7 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Reward"))
         {
             // Add reward to score
-            score += 5;
+            _gameManagerScript.AddBonusScore(5);
             sparkParticle.Play();
             _playerAudio.PlayOneShot(rewardSound, 1.0f);
             Destroy(other.gameObject);
