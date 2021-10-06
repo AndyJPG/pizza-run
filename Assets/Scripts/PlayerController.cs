@@ -9,8 +9,8 @@ public class PlayerController : MonoBehaviour
     private GameManager _gameManagerScript;
 
     // Character rigi and animator
-    private Rigidbody playerRb;
-    private Animator playerAnim;
+    private Rigidbody _playerRb;
+    private Animator _playerAnim;
 
     // Particles
     public ParticleSystem explosionParticle;
@@ -18,67 +18,55 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem sparkParticle;
 
     // Audio properties
-    private AudioSource playerAudio;
+    private AudioSource _playerAudio;
     public AudioClip jumpSound;
     public AudioClip crashSound;
     public AudioClip rewardSound;
 
-    // Object moving script
-    private MoveToTheLeft moveToTheLeftScript;
-    private float moveSpeed;
-
     // Character values
-    public float jumpForce = 10f;
-    public float gravityModifier = 1;
-    public bool isOnGround = true;
-    public bool hasDoubleJump = true;
+    private float _jumpForce = 20f;
+    private float _gravityModifier = 1;
+    private bool _isOnGround = true;
+    private bool _hasDoubleJump = true;
     public bool dashMode = false;
-    public int pizzaCollected;
 
     // Score tracking
     public float score = 0;
-    private float scoreUpdateInterval = 1f;
+    private float _scoreUpdateInterval = 1f;
 
     // Properties for switching land
-    private float _playerZPos = 4.8f;
+    private float _playerZPos = 0f;
     //private float[] playerZPositions = new float[] { 4.8f, 0f, -4.8f };
 
     // Start is called before the first frame update
     void Start()
     {
-        // Initialize pizza collected
-        pizzaCollected = 0;
-
         // Get game manager
         _gameManagerScript = gameManager.GetComponent<GameManager>();
-
-        // Get move to the left script to get current moving speed
-        moveToTheLeftScript = GameObject.Find("Ground").GetComponent<MoveToTheLeft>();
-        moveSpeed = moveToTheLeftScript.moveSpeed;
 
         // Initial position behind scene to show game entry
         transform.position = new Vector3(-9f, transform.position.y, _playerZPos);
 
         // Get player animator and rigidbody
-        playerAnim = GetComponent<Animator>();
-        playerRb = GetComponent<Rigidbody>();
-        playerAudio = GetComponent<AudioSource>();
+        _playerAnim = GetComponent<Animator>();
+        _playerRb = GetComponent<Rigidbody>();
+        _playerAudio = GetComponent<AudioSource>();
 
         // Set animator speed
-        playerAnim.SetFloat("Speed_f", 1f);
+        _playerAnim.SetFloat("Speed_f", 1f);
 
         // Set jump animation duration with multiplier
-        playerAnim.SetFloat("Running_Jump_Animation_Speed_Multiplier", 0.7f);
+        _playerAnim.SetFloat("Running_Jump_Animation_Speed_Multiplier", 0.7f);
 
         Physics.gravity = new Vector3(0, -9.81f, 0);
-        Physics.gravity *= gravityModifier;
+        Physics.gravity *= _gravityModifier;
 
         // Make dirt particle start by delay half second
         var main = dirtParticle.main;
         main.startDelay = 0.5f;
 
         // Update score
-        Invoke("UpdateScore", scoreUpdateInterval);
+        Invoke("UpdateScore", _scoreUpdateInterval);
     }
 
     // Update is called once per frame
@@ -114,20 +102,6 @@ public class PlayerController : MonoBehaviour
             {
                 GameEntry();
             }
-
-            // Check if the speed has changed
-            if (moveSpeed != moveToTheLeftScript.moveSpeed)
-            {
-                moveSpeed = moveToTheLeftScript.moveSpeed;
-            }
-
-            // Check if player enters furious mode
-            //if (pizzaCollected == 4)
-            //{
-            //    onFuriousMode = true;
-            //    pizzaCollected = 0;
-            //    Invoke("DisableFuriousMode", 20f);
-            //}
         }
 
     }
@@ -149,19 +123,23 @@ public class PlayerController : MonoBehaviour
     // Update score every seconds
     private void UpdateScore()
     {
-        if (!_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
+        Debug.Log("Current score: " + score);
+        if (_gameManagerScript.IsGameStart && !_gameManagerScript.IsGameOver && !_gameManagerScript.IsGameEntry)
         {
             score += 1;
 
             if (dashMode)
             {
                 // If is in dash mode score update faster
-                Invoke("UpdateScore", scoreUpdateInterval / 2);
+                Invoke("UpdateScore", _scoreUpdateInterval / 2);
             }
             else
             {
-                Invoke("UpdateScore", scoreUpdateInterval);
+                Invoke("UpdateScore", _scoreUpdateInterval);
             }
+        } else
+        {
+            Invoke("UpdateScore", _scoreUpdateInterval);
         }
     }
 
@@ -180,37 +158,40 @@ public class PlayerController : MonoBehaviour
             speed = 1.0f;
         }
         // Set twice fast the animation
-        playerAnim.SetFloat("Running_Animation_Speed_Multiplier", speed);
+        _playerAnim.SetFloat("Running_Animation_Speed_Multiplier", speed);
     }
 
     // Jump action
     private void JumpAction()
     {
-        if (!isOnGround && hasDoubleJump)
+        if (!_isOnGround && _hasDoubleJump)
         {
+            Debug.Log("Perform double jump");
             // Set velocity to zero before add another force to prevent acceleration futher from
             // previous velocity
-            playerRb.velocity = Vector3.zero;
-            playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            hasDoubleJump = false;
+            _playerRb.velocity = Vector3.zero;
+            _playerRb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+            _hasDoubleJump = false;
         }
-        else if (isOnGround)
+        else if (_isOnGround)
         {
-            playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        } else
+            Debug.Log("Perform jump");
+            _playerRb.AddForce(Vector3.up * 200f, ForceMode.Impulse);
+        } 
+        else
         {
             return;
         }
 
         // Set back on ground
-        isOnGround = false;
+        _isOnGround = false;
         // Trigger jump animation
-        playerAnim.SetTrigger("Jump_trig");
+        _playerAnim.SetTrigger("Jump_trig");
         // Stop particle animations
         dirtParticle.Stop();
 
         // Jump sound effect
-        playerAudio.PlayOneShot(jumpSound, 0.2f);
+        _playerAudio.PlayOneShot(jumpSound, 0.2f);
     }
 
     // Detect collision
@@ -220,9 +201,10 @@ public class PlayerController : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Ground"))
             {
+                Debug.Log("Ground");
                 // Reset jump when at ground
-                isOnGround = true;
-                hasDoubleJump = true;
+                _isOnGround = true;
+                _hasDoubleJump = true;
                 dirtParticle.Play();
             }
             else if (collision.gameObject.CompareTag("Obstacle"))
@@ -232,13 +214,13 @@ public class PlayerController : MonoBehaviour
                 _gameManagerScript.GameOver();
 
                 // Set animation
-                playerAnim.SetBool("Death_b", true);
-                playerAnim.SetInteger("DeathType_int", 1);
+                _playerAnim.SetBool("Death_b", true);
+                _playerAnim.SetInteger("DeathType_int", 1);
                 explosionParticle.Play();
                 dirtParticle.Stop();
 
                 // Crash sound effect
-                playerAudio.PlayOneShot(crashSound, 1.0f);
+                _playerAudio.PlayOneShot(crashSound, 1.0f);
 
             }
         }
@@ -252,7 +234,7 @@ public class PlayerController : MonoBehaviour
             // Add reward to score
             score += 5;
             sparkParticle.Play();
-            playerAudio.PlayOneShot(rewardSound, 1.0f);
+            _playerAudio.PlayOneShot(rewardSound, 1.0f);
             Destroy(other.gameObject);
         }
     }

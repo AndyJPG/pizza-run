@@ -70,9 +70,8 @@ public class GameMenu : MonoBehaviour
             _menu.alpha = fadeAmount;
             _menu.blocksRaycasts = false;
         }
-
         // Set menu active false
-        transform.gameObject.SetActive(false);
+        startButton.gameObject.SetActive(false);
     }
 
     // Fade in effect
@@ -84,12 +83,7 @@ public class GameMenu : MonoBehaviour
             _menu.alpha = fadeAmount;
             _menu.blocksRaycasts = true;
         }
-
-        // Set menu active true
-        transform.gameObject.SetActive(true);
-
         // Show restart button and hide start button
         restartButton.gameObject.SetActive(true);
-        startButton.gameObject.SetActive(false);
     }
 }

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CharactersAnimation : MonoBehaviour
@@ -15,6 +13,7 @@ public class CharactersAnimation : MonoBehaviour
         StartAnimation();
     }
 
+    // Animations
     private void StartAnimation()
     {
         int animationInt = 0;

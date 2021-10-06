@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MoveToTheLeft : MonoBehaviour
@@ -11,7 +9,7 @@ public class MoveToTheLeft : MonoBehaviour
     private PlayerController _playerControllerScript;
 
     // Move speed and boundry
-    public float moveSpeed = 20.0f;
+    private float _moveSpeed = 20.0f;
     private float _leftBoundry = -15f;
     private string[] _ofBoundaryTags = { "Obstacle", "Scene" };
 
@@ -40,11 +38,11 @@ public class MoveToTheLeft : MonoBehaviour
     {
         if (_playerControllerScript.dashMode)
         {
-            transform.Translate(Vector3.left * Time.deltaTime * moveSpeed * 2);
+            transform.Translate(Vector3.left * Time.deltaTime * _moveSpeed * 2);
         }
         else
         {
-            transform.Translate(Vector3.left * Time.deltaTime * moveSpeed);
+            transform.Translate(Vector3.left * Time.deltaTime * _moveSpeed);
         }
     }
 

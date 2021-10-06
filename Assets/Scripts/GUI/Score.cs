@@ -5,18 +5,20 @@ using UnityEngine.UI;
 
 public class Score : MonoBehaviour
 {
-    private PlayerController playerControllerScript;
-    private Text scoreText;
+    // Player script
+    public GameObject player;
+    private PlayerController _playerControllerScript;
+    private Text _scoreText;
     // Start is called before the first frame update
     void Start()
     {
-        playerControllerScript = GameObject.Find("Player").GetComponent<PlayerController>();
-        scoreText = gameObject.GetComponent<Text>();
+        _playerControllerScript = player.GetComponent<PlayerController>();
+        _scoreText = gameObject.GetComponent<Text>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        scoreText.text ="Score: " + playerControllerScript.score.ToString();
+        _scoreText.text ="Score: " + _playerControllerScript.score.ToString();
     }
 }
