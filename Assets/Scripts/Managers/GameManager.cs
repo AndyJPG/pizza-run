@@ -5,16 +5,17 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     // Game start and Game over properties
-    public bool _isGameStart;
-    public bool _isGameOver;
-    public bool _isGameEntry;
+    private bool _isGameStart;
+    private bool _isGameOver;
+    private bool _isGameEntry;
 
     // Scene manager
     public GameObject sceneManager;
     private ScenesManager _sceneManagerScript;
 
-    // Score
-    private int _score;
+    // Score manager
+    public GameObject scoreManager;
+    private ScoreManager _scoreManagerScript;
 
     // Dash mode
     private bool _dashMode;
@@ -29,10 +30,11 @@ public class GameManager : MonoBehaviour
         _isGameStart = false;
         _isGameOver = false;
         _isGameEntry = false;
-        _score = 0;
 
         // Initialize scene manager
         _sceneManagerScript = sceneManager.GetComponent<ScenesManager>();
+        // Initialize score manager
+        _scoreManagerScript = scoreManager.GetComponent<ScoreManager>();
 
         // Set game physics
         Physics.gravity = new Vector3(0, -9.81f * _gravityModifier, 0);
@@ -56,12 +58,6 @@ public class GameManager : MonoBehaviour
         get { return _isGameEntry; }
     }
 
-    // Get score
-    public int Score
-    {
-        get { return _score; }
-    }
-
     // Is play on dash mode
     public bool DashMode
     {
@@ -73,7 +69,7 @@ public class GameManager : MonoBehaviour
     {
         _isGameStart = true;
         _isGameEntry = true;
-        UpdateScore();
+        _scoreManagerScript.StartCountScore();
     }
 
     // Game entry completed
@@ -106,30 +102,5 @@ public class GameManager : MonoBehaviour
     public void ExitDashMode()
     {
         _dashMode = false;
-    }
-
-    // Update score every seconds
-    private void UpdateScore()
-    {
-        if (!_isGameOver)
-        {
-            _score += 1;
-
-            if (_dashMode)
-            {
-                // If is in dash mode score update faster
-                Invoke("UpdateScore", 0.5f);
-            }
-            else
-            {
-                Invoke("UpdateScore", 1f);
-            }
-        }
-    }
-
-    // Add bonus score
-    public void AddBonusScore(int bonus)
-    {
-        _score += bonus;
     }
 }

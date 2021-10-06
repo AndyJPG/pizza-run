@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class Score : MonoBehaviour
 {
     // Player script
-    public GameObject gameManager;
-    private GameManager _gameManagerScript;
+    public GameObject scoreManager;
+    private ScoreManager _scoreManagerScript;
 
     // UI text
     private Text _scoreText;
@@ -16,13 +16,13 @@ public class Score : MonoBehaviour
     void Start()
     {
         // Initialize variables
-        _gameManagerScript = gameManager.GetComponent<GameManager>();
+        _scoreManagerScript = scoreManager.GetComponent<ScoreManager>();
         _scoreText = gameObject.GetComponent<Text>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        _scoreText.text ="Score: " + _gameManagerScript.Score.ToString();
+        _scoreText.text ="Score: " + _scoreManagerScript.Score.ToString();
     }
 }

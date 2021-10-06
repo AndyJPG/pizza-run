@@ -848,7 +848,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd5aa827c204d364c8d1e2f3cc031db9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1411997120}
+  gameManager: {fileID: 1492875944}
 --- !u!114 &645662454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1562,8 +1562,6 @@ MonoBehaviour:
   jumpSound: {fileID: 8300000, guid: 0f7d0b7c3397f4dac91f20e8a77d2d57, type: 3}
   crashSound: {fileID: 8300000, guid: 913d6445ee8cc4152a9c18da590ee203, type: 3}
   rewardSound: {fileID: 8300000, guid: ccb9b31174a3a43709a113a9c7cf4252, type: 3}
-  dashMode: 0
-  score: 0
 --- !u!4 &1411997125 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400066, guid: 70ab0d3e71b54ac4bbd703cb0a686c4d, type: 3}

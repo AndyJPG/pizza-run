@@ -8,6 +8,10 @@ public class PlayerController : MonoBehaviour
     public GameObject gameManager;
     private GameManager _gameManagerScript;
 
+    // Score Manager
+    public GameObject scoreManager;
+    private ScoreManager _scoreManagerScript;
+
     // Character rigi and animator
     private Rigidbody _playerRb;
     private Animator _playerAnim;
@@ -29,13 +33,16 @@ public class PlayerController : MonoBehaviour
     private bool _hasDoubleJump = true;
 
     // Properties for switching land
-    private float _playerZPos = 0; // { 4.8f, 0f, -4.8f };
+    private float _playerZPos = 4.8f; // { 4.8f, 0f, -4.8f };
 
     // Start is called before the first frame update
     void Start()
     {
         // Get game manager
         _gameManagerScript = gameManager.GetComponent<GameManager>();
+
+        // Get score manager
+        _scoreManagerScript = scoreManager.GetComponent<ScoreManager>();
 
         // Initial position behind scene to show game entry
         transform.position = new Vector3(-9f, transform.position.y, _playerZPos);
@@ -175,7 +182,7 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Reward"))
         {
             // Add reward to score
-            _gameManagerScript.AddBonusScore(5);
+            _scoreManagerScript.AddBonusScore(5);
             sparkParticle.Play();
             _playerAudio.PlayOneShot(rewardSound, 1.0f);
             Destroy(other.gameObject);
