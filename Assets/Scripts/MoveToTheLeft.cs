@@ -8,7 +8,7 @@ public class MoveToTheLeft : MonoBehaviour
 
     // Move speed and boundry
     private float _moveSpeed = 20.0f;
-    private float _leftBoundry = -15f;
+    private float _leftBoundry = -20f;
     private string[] _ofBoundaryTags = { "Obstacle", "Scene" };
 
     // Start is called before the first frame update
