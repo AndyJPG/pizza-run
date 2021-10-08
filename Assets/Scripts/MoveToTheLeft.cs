@@ -16,6 +16,11 @@ public class MoveToTheLeft : MonoBehaviour
     {
         // Initialize game manager script
         _gameManagerScript = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+        if (gameObject.name.ToLower().Contains("car"))
+        {
+            _moveSpeed = 5f;
+        }
     }
 
     // Update is called once per frame

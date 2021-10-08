@@ -13,13 +13,13 @@ public class SpawnManager : MonoBehaviour
     public GameObject[] scenePrefabs;
 
     // Level and last update time
-    private float level = 0;
-    private float levelUpdateInterval = 10.0f;
+    private float _level = 0;
+    private float _levelUpdateInterval = 10.0f;
 
     // Spawn positions
-    private Vector3 spawnPos = new Vector3(45, 0, 4.8f);
-    private Vector3 sceneSpawnPos = new Vector3(45, 0, 10);
-    private Vector3 carSceneSpawnPos = new Vector3(45, 0, 0);
+    private Vector3 _spawnPos = new Vector3(45, 0, 4.8f);
+    private Vector3 _sceneSpawnPos = new Vector3(45, 0, 10);
+    private Vector3 _carSceneSpawnPos = new Vector3(45, 0, 0);
 
     // Start is called before the first frame update
     void Start()
@@ -41,11 +41,11 @@ public class SpawnManager : MonoBehaviour
     private void LevelUpdate()
     {
         // Start tracking level update
-        if (_gameManagerScript.IsGameStart && !_gameManagerScript.IsGameEntry && level < 3)
+        if (_gameManagerScript.IsGameStart && !_gameManagerScript.IsGameEntry && _level < 3)
         {
-            level += 0.5f;
-            Debug.Log("Current level: " + level);
-            Invoke("LevelUpdate", levelUpdateInterval);
+            _level += 0.5f;
+            Debug.Log("Current level: " + _level);
+            Invoke("LevelUpdate", _levelUpdateInterval);
         } 
         else if (!_gameManagerScript.IsGameOver)
         {
@@ -63,10 +63,10 @@ public class SpawnManager : MonoBehaviour
             int obstacleIndex = Random.Range(0, obstaclePrefabs.Length);
             selectedObstacle = obstaclePrefabs[obstacleIndex];
 
-            Instantiate(selectedObstacle, spawnPos, transform.rotation);
+            Instantiate(selectedObstacle, _spawnPos, transform.rotation);
 
             // Spawn quicker at higher level
-            float obstacleSpawnInterval = Random.Range(1.5f, 5.0f - level);
+            float obstacleSpawnInterval = Random.Range(1.5f, 5.0f - _level);
             Invoke("SpawnObstacle", obstacleSpawnInterval);
         } 
         else if (!_gameManagerScript.IsGameOver)
@@ -82,7 +82,15 @@ public class SpawnManager : MonoBehaviour
         {
             GameObject selectedScene = scenePrefabs[Random.Range(0, scenePrefabs.Length)];
 
-            Instantiate(selectedScene, sceneSpawnPos, transform.rotation);
+            if (selectedScene.name.ToLower().Contains("car"))
+            {
+                Instantiate(selectedScene, _carSceneSpawnPos, transform.rotation);
+            }
+            else
+            {
+                Instantiate(selectedScene, _sceneSpawnPos, transform.rotation);
+            }
+            
             Invoke("SpawnScene", Random.Range(1.5f, 5f));
         }
         else if (!_gameManagerScript.IsGameOver)
