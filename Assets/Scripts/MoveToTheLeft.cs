@@ -31,6 +31,11 @@ public class MoveToTheLeft : MonoBehaviour
             OnMove();
             DestoryOutOfBoundary();
         }
+
+        if (gameObject.name.ToLower().Contains("car") && _gameManagerScript.IsGameOver)
+        {
+            transform.Translate(Vector3.right * Time.deltaTime * _moveSpeed);
+        }
     }
 
     // Moving object

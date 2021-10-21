@@ -16,6 +16,7 @@ TagManager:
   - Bomb
   - Money
   - Walker
+  - SitDog
   layers:
   - Default
   - TransparentFX

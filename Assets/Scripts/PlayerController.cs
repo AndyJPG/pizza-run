@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
     private bool _hasDoubleJump = true;
 
     // Properties for switching land
-    private float _playerZPos = 0; // { 4.8f, 0f, -4.8f };
+    private float _playerZPos = 4.8f; // { 4.8f, 0f, -4.8f };
 
     // Start is called before the first frame update
     void Start()
