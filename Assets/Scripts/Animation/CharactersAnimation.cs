@@ -40,7 +40,10 @@ public class CharactersAnimation : MonoBehaviour
                 characterAnim.SetBool("Static_b", false);
                 characterAnim.SetFloat("Character_Animation_Speed", walkerSpeed * 2.5f);
                 break;
-
+            case "SitDog":
+                characterAnim.SetFloat("Character_Animation_Speed", 1f);
+                characterAnim.SetBool("Sit_b", true);
+                break;
             default:
                 break;
         }
